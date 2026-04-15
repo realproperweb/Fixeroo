@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1a8a5a">
+<title>ServiceConnect — Any service, one message away</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1a8a5a;
+    --green-light: #e8f7ef;
+    --green-mid: #2db376;
+    --green-dark: #12603e;
+    --green-accent: #00d97e;
+    --ink: #0f1a14;
+    --ink-2: #2d3d35;
+    --ink-3: #556b60;
+    --ink-4: #8fa899;
+    --surface: #f5faf7;
+    --surface-2: #edf5f0;
+    --surface-3: #daeee4;
+    --white: #ffffff;
+    --border: rgba(26,138,90,0.14);
+    --border-strong: rgba(26,138,90,0.28);
+    --radius: 14px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+    --wa-green: #25D366;
+    --wa-dark: #128C7E;
+    --shadow-sm: 0 1px 3px rgba(15,26,20,0.08), 0 1px 2px rgba(15,26,20,0.06);
+    --shadow: 0 4px 12px rgba(15,26,20,0.1), 0 2px 4px rgba(15,26,20,0.07);
+    --shadow-md: 0 8px 24px rgba(15,26,20,0.12), 0 4px 8px rgba(15,26,20,0.07);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-top: env(safe-area-inset-top, 0px);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--surface);
+    color: var(--ink);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ── APP SHELL (MOBILE-FIRST ADAPTIVE) ── */
+  .app-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* ── TOP BAR (TOUCH OPTIMIZED) ── */
+  .topbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+    backdrop-filter: blur(0px);
+    flex-wrap: nowrap;
+    min-height: 64px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    text-decoration: none;
+  }
+
+  .logo-mark {
+    width: 34px;
+    height: 34px;
+    background: var(--green);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 16px;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+
+  .logo-text span { color: var(--green); }
+
+  .topbar-divider {
+    width: 1px;
+    height: 28px;
+    background: var(--border);
+    flex-shrink: 0;
+    display: none; /* hidden on mobile, shows on desktop */
+  }
+
+  .search-wrap {
+    flex: 1;
+    position: relative;
+    min-width: 0; /* prevents overflow */
+  }
+
+  .search-wrap svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-4);
+    pointer-events: none;
+    width: 16px;
+    height: 16px;
+  }
+
+  #searchInput {
+    width: 100%;
+    padding: 11px 40px 11px 38px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+  }
+
+  #searchInput:focus {
+    border-color: var(--green-mid);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(45,179,118,0.15);
+  }
+
+  #searchInput::placeholder { color: var(--ink-4); font-size: 14px; }
+
+  #clearBtn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--surface-3);
+    border: none;
+    border-radius: 20px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-3);
+    font-size: 14px;
+    font-weight: bold;
+    transition: background 0.2s;
+  }
+
+  #clearBtn.visible { display: flex; }
+  #clearBtn:active { background: var(--ink-4); }
+
+  .topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .stat-pill {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ink-3);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 5px 10px;
+    border-radius: 30px;
+    white-space: nowrap;
+  }
+
+  .btn-wa-top {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--wa-green);
+    color: #fff;
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: 40px;
+    font-size: 13px;
+    font-weight: 600;
+    transition: background 0.15s, transform 0.1s;
+    white-space: nowrap;
+  }
+
+  .btn-wa-top:active { transform: scale(0.96); background: var(--wa-dark); }
+
+  /* ── MOBILE SIDEBAR (OFF-CANVAS) ── */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 85%;
+    max-width: 300px;
+    height: 100%;
+    background: var(--white);
+    z-index: 200;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    box-shadow: var(--shadow-md);
+    padding: 20px 16px;
+    overflow-y: auto;
+    border-right: 1px solid var(--border);
+    visibility: hidden;
+    backdrop-filter: blur(0px);
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+    visibility: visible;
+  }
+
+  /* overlay backdrop */
+  .sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15,26,20,0.5);
+    backdrop-filter: blur(3px);
+    z-index: 180;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease;
+  }
+
+  .sidebar-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+    padding: 0 8px;
+    margin-bottom: 12px;
+  }
+
+  .sidebar-nav {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .sidebar-nav li a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--ink-2);
+    text-decoration: none;
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+
+  .sidebar-nav li a:active { background: var(--surface); }
+
+  .sidebar-nav li a.active {
+    background: var(--green-light);
+    color: var(--green-dark);
+  }
+
+  .sidebar-nav li a .icon-wrap {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sidebar-nav li a.active .icon-wrap { background: var(--green-mid); }
+  .sidebar-nav li a.active .icon-wrap svg { color: #fff; }
+
+  .sidebar-nav li a .count {
+    margin-left: auto;
+    font-size: 11px;
+    background: var(--surface-2);
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  .sidebar-footer {
+    margin-top: 28px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-wa-sidebar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--green-light);
+    border: 1px solid var(--border-strong);
+    border-radius: 16px;
+    padding: 12px;
+    text-decoration: none;
+  }
+
+  .btn-wa-sidebar:active { background: var(--surface-3); }
+
+  .wa-icon-circle {
+    width: 40px;
+    height: 40px;
+    background: var(--wa-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── MAIN CONTENT (TOUCH FRIENDLY) ── */
+  .main-content {
+    flex: 1;
+    padding: 20px 16px 90px 16px;
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  /* ── HERO BANNER (RESPONSIVE) ── */
+  .hero-banner {
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+    border-radius: var(--radius-xl);
+    padding: 24px 20px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-text h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+    margin-bottom: 8px;
+  }
+
+  .hero-text p {
+    font-size: 14px;
+    color: rgba(255,255,255,0.8);
+    line-height: 1.45;
+    max-width: 100%;
+  }
+
+  .hero-stats {
+    display: none; /* hidden on mobile to save space */
+  }
+
+  /* filter chips (horizontal scroll for mobile) */
+  .filter-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+
+  .filter-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border-radius: 40px;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+    touch-action: manipulation;
+  }
+
+  .filter-chip:active { background: var(--green-light); transform: scale(0.97);}
+  .filter-chip.active {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+  }
+
+  /* SERVICES GRID (1 COLUMN MOBILE) */
+  #mainGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .cat-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+    animation: fadeUp 0.3s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .cat-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .cat-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .cat-icon svg { color: #fff; width: 18px; height: 18px; }
+
+  .cat-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    flex: 1;
+  }
+
+  .cat-count {
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--green-light);
+    color: var(--green-dark);
+    padding: 3px 10px;
+    border-radius: 30px;
+  }
+
+  .cat-body {
+    padding: 8px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .svc-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    transition: background 0.12s;
+    touch-action: manipulation;
+  }
+
+  .svc-row:active { background: var(--surface); }
+
+  .svc-name {
+    font-size: 14px;
+    color: var(--ink-2);
+    font-weight: 500;
+    line-height: 1.35;
+    flex: 1;
+  }
+
+  .svc-btn {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--wa-green);
+    color: #fff;
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: 40px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background 0.15s, transform 0.05s;
+    white-space: nowrap;
+    touch-action: manipulation;
+  }
+
+  .svc-btn:active { transform: scale(0.96); background: var(--wa-dark); }
+
+  /* NO RESULTS */
+  #noResults {
+    display: none;
+    text-align: center;
+    padding: 50px 20px;
+    background: var(--white);
+    border-radius: var(--radius-xl);
+  }
+
+  .no-results-icon {
+    width: 70px;
+    height: 70px;
+    background: var(--surface-2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+  }
+
+  #noResults h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+
+  .btn-wa-nr {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--wa-green);
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    margin-top: 16px;
+  }
+
+  /* FLOATING WA BUTTON (mobile) */
+  .wa-float {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    background: var(--wa-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-md);
+    text-decoration: none;
+    z-index: 150;
+    transition: transform 0.2s;
+    touch-action: manipulation;
+  }
+  .wa-float:active { transform: scale(0.92); background: var(--wa-dark); }
+
+  .mobile-menu-btn {
+    display: flex;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px;
+    cursor: pointer;
+    color: var(--ink-2);
+    align-items: center;
+    justify-content: center;
+    background: var(--white);
+    touch-action: manipulation;
+  }
+
+  .mobile-menu-btn:active { background: var(--surface); }
+
+  /* DESKTOP IMPROVEMENTS (min-width) */
+  @media (min-width: 768px) {
+    .app-shell {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      grid-template-rows: 70px 1fr;
+    }
+    .topbar {
+      grid-column: 1 / -1;
+      padding: 0 28px;
+    }
+    .topbar-divider { display: block; }
+    .stat-pill { display: flex; }
+    .mobile-menu-btn { display: none; }
+    .sidebar {
+      position: relative;
+      transform: translateX(0);
+      visibility: visible;
+      width: auto;
+      max-width: none;
+      height: calc(100vh - 70px);
+      top: auto;
+      left: auto;
+      border-right: 1px solid var(--border);
+      box-shadow: none;
+      background: var(--white);
+      padding: 24px 18px;
+    }
+    .sidebar-backdrop { display: none; }
+    .main-content {
+      padding: 28px 32px 32px 32px;
+      height: calc(100vh - 70px);
+      overflow-y: auto;
+    }
+    .hero-banner { padding: 32px 36px; }
+    .hero-text h1 { font-size: 28px; }
+    .hero-stats { display: flex; gap: 18px; margin-top: 0; }
+    #mainGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); gap: 24px; }
+    .filter-row { flex-wrap: wrap; overflow-x: visible; }
+    .wa-float { display: none; }
+    .btn-wa-top span { display: inline; }
+  }
+
+  @media (max-width: 480px) {
+    .logo-text { font-size: 14px; }
+    .btn-wa-top { padding: 6px 12px; font-size: 12px; }
+    .btn-wa-top span { display: none; }
+    .stat-pill { display: none; }
+    .hero-text h1 { font-size: 20px; }
+    .cat-header { padding: 12px; }
+    .svc-row { flex-wrap: wrap; }
+    .svc-btn { padding: 6px 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <header class="topbar">
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+      <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+
+    <a href="#" class="logo">
+      <div class="logo-mark">
+        <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+        </svg>
+      </div>
+      <span class="logo-text">Service<span>Connect</span></span>
+    </a>
+
+    <div class="topbar-divider"></div>
+
+    <div class="search-wrap">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Search service…" autocomplete="off">
+      <button id="clearBtn" aria-label="Clear">✕</button>
+    </div>
+
+    <div class="topbar-actions">
+      <span class="stat-pill" id="statPill">130+</span>
+      <a href="https://wa.me/27689124033?text=Hello%2C%20I'm%20looking%20for%20a%20service." target="_blank" class="btn-wa-top">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.33 4.95L2.05 22l5.32-1.4c1.5.82 3.2 1.25 4.96 1.25 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2z"/><path d="M17.5 14.5c-.3.8-1.5 1.4-2.4 1.5-.6.1-1.4 0-2.8-.6-2.3-1-3.8-3.3-3.9-3.5-.1-.2-.9-1.2-.9-2.4 0-1.1.6-1.7.8-1.9.2-.2.5-.3.8-.3h.6c.2 0 .4 0 .6.5.2.6.7 1.7.8 1.8.1.1.1.3 0 .5-.1.2-.2.3-.3.5-.1.2-.2.3-.1.5.2.4.9 1.5 1.9 1.9 1.3.6 1.3.4 1.5.4.2 0 .3-.1.5-.3.2-.2.8-.9 1-1.2.2-.3.4-.2.6-.1.2.1 1.3.6 1.5.7.2.1.4.2.3.4z"/></svg>
+        <span>068 912 4033</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Backdrop for mobile sidebar -->
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <p class="sidebar-label">All services</p>
+    <ul class="sidebar-nav" id="sidebarNav"></ul>
+    <div class="sidebar-footer">
+      <a href="https://wa.me/27689124033?text=Hi%2C%20I%20need%20a%20custom%20service%20quote." target="_blank" class="btn-wa-sidebar">
+        <div class="wa-icon-circle">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="#fff"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.33 4.95L2.05 22l5.32-1.4c1.5.82 3.2 1.25 4.96 1.25 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2z"/><path d="M17.5 14.5c-.3.8-1.5 1.4-2.4 1.5-.6.1-1.4 0-2.8-.6-2.3-1-3.8-3.3-3.9-3.5-.1-.2-.9-1.2-.9-2.4 0-1.1.6-1.7.8-1.9.2-.2.5-.3.8-.3h.6c.2 0 .4 0 .6.5.2.6.7 1.7.8 1.8.1.1.1.3 0 .5-.1.2-.2.3-.3.5-.1.2-.2.3-.1.5.2.4.9 1.5 1.9 1.9 1.3.6 1.3.4 1.5.4.2 0 .3-.1.5-.3.2-.2.8-.9 1-1.2.2-.3.4-.2.6-.1.2.1 1.3.6 1.5.7.2.1.4.2.3.4z"/></svg>
+        </div>
+        <div class="btn-wa-sidebar-text">
+          <strong>Can't find it?</strong>
+          <span>Chat with us directly</span>
+        </div>
+      </a>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="hero-banner">
+      <div class="hero-text">
+        <h1>Any job, any time.<br>We've got it covered.</h1>
+        <p>130+ services — request any in one tap via WhatsApp.</p>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><strong id="heroTotal">130+</strong><span>Services</span></div>
+        <div class="hero-stat"><strong>13</strong><span>Categories</span></div>
+        <div class="hero-stat"><strong>1</strong><span>Tap to book</span></div>
+      </div>
+    </div>
+
+    <div class="filter-row" id="filterRow"></div>
+    <div id="mainGrid">
+      <div id="noResults">
+        <div class="no-results-icon"><svg width="30" height="30" fill="none" stroke="var(--ink-4)" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div>
+        <h3>No matching services</h3>
+        <p>Message us on WhatsApp, we'll help you out.</p>
+        <a href="https://wa.me/27689124033?text=Hi%2C%20I%20need%20assistance" target="_blank" class="btn-wa-nr">Message 068 912 4033</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<a href="https://wa.me/27689124033?text=Hello%21" target="_blank" class="wa-float" aria-label="WhatsApp">
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.33 4.95L2.05 22l5.32-1.4c1.5.82 3.2 1.25 4.96 1.25 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2z"/><path d="M17.5 14.5c-.3.8-1.5 1.4-2.4 1.5-.6.1-1.4 0-2.8-.6-2.3-1-3.8-3.3-3.9-3.5-.1-.2-.9-1.2-.9-2.4 0-1.1.6-1.7.8-1.9.2-.2.5-.3.8-.3h.6c.2 0 .4 0 .6.5.2.6.7 1.7.8 1.8.1.1.1.3 0 .5-.1.2-.2.3-.3.5-.1.2-.2.3-.1.5.2.4.9 1.5 1.9 1.9 1.3.6 1.3.4 1.5.4.2 0 .3-.1.5-.3.2-.2.8-.9 1-1.2.2-.3.4-.2.6-.1.2.1 1.3.6 1.5.7.2.1.4.2.3.4z"/></svg>
+</a>
+
+<script>
+(function() {
+  const WA_NUMBER = "27689124033";
+  const catIcons = { "General Repairs & Maintenance": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`, "Carpentry & Woodwork": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><path d="M3 17.5h7m-3.5-3.5v7"/></svg>`, "Painting & Finishing": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M2 13.5A6.5 6.5 0 0 1 8.5 7h7A6.5 6.5 0 0 1 22 13.5v0a.5.5 0 0 1-.5.5H2.5a.5.5 0 0 1-.5-.5zM12 7V4m0 0H9m3 0h3"/></svg>`, "Drywall & Wall Work": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>`, "Electrical (Minor)": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>`, "Plumbing (Minor)": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M12 2v6M8 8a4 4 0 0 0 8 0M6 12H4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-2"/><line x1="12" y1="16" x2="12" y2="18"/></svg>`, "Flooring & Tiling": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M4 12 L12 4 L20 12 L12 20 Z"/><path d="M4 12 L12 20 M20 12 L12 4"/></svg>`, "Doors, Windows & Fixtures": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M15 12h.01"/></svg>`, "Installation & Assembly Services": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M4.22 4.22l2.12 2.12m11.32 11.32 2.12 2.12M2 12h3m14 0h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>`, "Exterior & Outdoor Services": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`, "Kitchen & Bathroom Specific": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>`, "Cleaning & Organization": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M3 6l3 13h12l3-13H3z"/><path d="M3 6h18M10 6V4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2"/></svg>`, "Other Specialized or Niche Services": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>` };
+  const catShort = { "General Repairs & Maintenance": "Repairs", "Carpentry & Woodwork": "Carpentry", "Painting & Finishing": "Painting", "Drywall & Wall Work": "Drywall", "Electrical (Minor)": "Electrical", "Plumbing (Minor)": "Plumbing", "Flooring & Tiling": "Flooring", "Doors, Windows & Fixtures": "Doors & Windows", "Installation & Assembly Services": "Installation", "Exterior & Outdoor Services": "Outdoor", "Kitchen & Bathroom Specific": "Kitchen & Bath", "Cleaning & Organization": "Cleaning", "Other Specialized or Niche Services": "Specialized" };
+  const catalog = [
+    { category: "General Repairs & Maintenance", services: ["Minor home repairs","General labor","Senior home safety upgrades","Weatherstripping","Caulking & sealing","Grout repair","Leak detection","Childproofing","Home maintenance checklists"] },
+    { category: "Carpentry & Woodwork", services: ["Carpentry general","Custom shelving","Cabinet repair","Trim & molding","Deck repair","Fence repair","Door/window frames","Furniture repair"] },
+    { category: "Painting & Finishing", services: ["Interior painting","Exterior painting","Touch-ups","Stain application","Wallpaper hanging"] },
+    { category: "Drywall & Wall Work", services: ["Drywall repair","Hole filling","Texture matching","Picture hanging"] },
+    { category: "Electrical (Minor)", services: ["Light fixture replacement","Ceiling fan install","Smoke detector install","Outlet repair","Smart home devices"] },
+    { category: "Plumbing (Minor)", services: ["Faucet repair","Toilet repair","Showerhead install","Drain unclogging","Garbage disposal"] },
+    { category: "Flooring & Tiling", services: ["Tile installation","Floor repairs","Grout cleaning","Carpet repair"] },
+    { category: "Doors, Windows & Fixtures", services: ["Door repair","Window repair","Lock replacement","Weatherproofing","Blinds install"] },
+    { category: "Installation & Assembly Services", services: ["Furniture assembly","TV mounting","Appliance install","Shelving","Smart home setup"] },
+    { category: "Exterior & Outdoor Services", services: ["Tree trimming","Gutter cleaning","Pressure washing","Landscaping","Deck maintenance","Roof minor repairs"] },
+    { category: "Kitchen & Bathroom Specific", services: ["Minor remodels","Backsplash install","Countertop repairs","Vanity adjustments"] },
+    { category: "Cleaning & Organization", services: ["Post-construction cleanup","Window cleaning","Deep cleaning","Junk removal","Garage organization"] },
+    { category: "Other Specialized or Niche Services", services: ["HVAC filter","Appliance repair","Moving help","Errands","Party setup","Electronics setup","Pest control","Concrete sealing"] }
+  ];
+  const totalServices = catalog.reduce((a,c)=> a + c.services.length,0);
+  document.getElementById('heroTotal').innerText = totalServices+'+';
+  document.getElementById('statPill').innerHTML = totalServices+'+ services';
+
+  let activeCategory = 'all', searchTerm = '';
+  const grid = document.getElementById('mainGrid'), noResultsDiv = document.getElementById('noResults');
+  const sidebarNav = document.getElementById('sidebarNav'), filterRow = document.getElementById('filterRow');
+  const searchInput = document.getElementById('searchInput'), clearBtn = document.getElementById('clearBtn');
+  const waIcon = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.33 4.95L2.05 22l5.32-1.4c1.5.82 3.2 1.25 4.96 1.25 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2z"/><path d="M17.5 14.5c-.3.8-1.5 1.4-2.4 1.5-.6.1-1.4 0-2.8-.6-2.3-1-3.8-3.3-3.9-3.5-.1-.2-.9-1.2-.9-2.4 0-1.1.6-1.7.8-1.9.2-.2.5-.3.8-.3h.6c.2 0 .4 0 .6.5.2.6.7 1.7.8 1.8.1.1.1.3 0 .5-.1.2-.2.3-.3.5-.1.2-.2.3-.1.5.2.4.9 1.5 1.9 1.9 1.3.6 1.3.4 1.5.4.2 0 .3-.1.5-.3.2-.2.8-.9 1-1.2.2-.3.4-.2.6-.1.2.1 1.3.6 1.5.7.2.1.4.2.3.4z"/></svg>`;
+  function waLink(name){ return `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent('Hi, I\'m interested in: ' + name)}`; }
+  function render() {
+    const term = searchTerm.trim().toLowerCase();
+    let html = '', visibleCount=0;
+    catalog.forEach(cat => {
+      if(activeCategory !== 'all' && cat.category !== activeCategory) return;
+      let services = term ? cat.services.filter(s => s.toLowerCase().includes(term)) : [...cat.services];
+      if(!services.length) return;
+      visibleCount += services.length;
+      const icon = catIcons[cat.category] || catIcons["Other Specialized or Niche Services"];
+      const rows = services.map(s => `<div class="svc-row"><span class="svc-name">${escapeHtml(s)}</span><a href="${waLink(s)}" target="_blank" class="svc-btn">${waIcon} Book</a></div>`).join('');
+      html += `<div class="cat-card"><div class="cat-header"><div class="cat-icon">${icon}</div><h2 class="cat-title">${cat.category}</h2><span class="cat-count">${services.length}</span></div><div class="cat-body">${rows}</div></div>`;
+    });
+    const gridContainer = document.getElementById('mainGrid');
+    const oldCards = gridContainer.querySelectorAll('.cat-card');
+    oldCards.forEach(c => c.remove());
+    if(!html){ noResultsDiv.style.display = 'block'; } 
+    else { noResultsDiv.style.display = 'none'; gridContainer.insertAdjacentHTML('beforeend', html); }
+    document.getElementById('statPill').innerHTML = visibleCount + ' service' + (visibleCount !== 1 ? 's' : '');
+    document.querySelectorAll('.sidebar-nav a').forEach(a => a.classList.toggle('active', a.dataset.cat === activeCategory));
+    document.querySelectorAll('.filter-chip').forEach(c => c.classList.toggle('active', c.dataset.cat === activeCategory));
+  }
+  function escapeHtml(str){ return str.replace(/[&<>]/g, function(m){ if(m === '&') return '&amp;'; if(m === '<') return '&lt;'; if(m === '>') return '&gt;'; return m;}); }
+  function buildSidebar(){
+    let html = `<li><a href="#" data-cat="all" class="active"><div class="icon-wrap"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>All Services <span class="count">${totalServices}</span></a></li>`;
+    catalog.forEach(cat => { html += `<li><a href="#" data-cat="${cat.category}"><div class="icon-wrap">${catIcons[cat.category] || ''}</div>${catShort[cat.category] || cat.category}<span class="count">${cat.services.length}</span></a></li>`; });
+    sidebarNav.innerHTML = html;
+    sidebarNav.querySelectorAll('a').forEach(a => a.addEventListener('click', (e) => { e.preventDefault(); activeCategory = a.dataset.cat; render(); document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarBackdrop').classList.remove('active'); }));
+  }
+  function buildChips(){
+    let html = `<div class="filter-chip active" data-cat="all"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> All</div>`;
+    catalog.forEach(cat => { const short = catShort[cat.category] || cat.category; html += `<div class="filter-chip" data-cat="${cat.category}">${(catIcons[cat.category] || '').replace('width="17" height="17"','width="12" height="12"')} ${short}</div>`; });
+    filterRow.innerHTML = html;
+    filterRow.querySelectorAll('.filter-chip').forEach(c => c.addEventListener('click', () => { activeCategory = c.dataset.cat; render(); document.getElementById('mainGrid').scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
+  }
+  searchInput.addEventListener('input', (e) => { searchTerm = e.target.value; clearBtn.classList.toggle('visible', searchTerm.length > 0); render(); });
+  clearBtn.addEventListener('click', () => { searchInput.value = ''; searchTerm = ''; clearBtn.classList.remove('visible'); searchInput.focus(); render(); });
+  const mobileBtn = document.getElementById('mobileMenuBtn'), sidebar = document.getElementById('sidebar'), backdrop = document.getElementById('sidebarBackdrop');
+  function closeSidebar(){ sidebar.classList.remove('open'); backdrop.classList.remove('active'); }
+  mobileBtn.addEventListener('click', () => { sidebar.classList.toggle('open'); backdrop.classList.toggle('active'); });
+  backdrop.addEventListener('click', closeSidebar);
+  buildSidebar(); buildChips(); render();
+})();
+</script>
+</body>
+</html>
