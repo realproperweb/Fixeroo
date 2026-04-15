@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>ServiceConnect • Any service, one message away</title>
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Custom smooth behavior & font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz@14..32&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Inter', system-ui, sans-serif; }
+    .service-tag {
+      transition: all 0.15s ease;
+    }
+    .wa-link {
+      transition: transform 0.1s ease;
+    }
+    .wa-link:active { transform: scale(0.95); }
+    .category-card {
+      background: white;
+      border-radius: 1.5rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.02), 0 2px 6px rgba(0,0,0,0.03);
+      border: 1px solid #f0f0f0;
+    }
+    /* Hide category when no visible services (filtered) */
+    .category-section.hidden-category {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-[#fafbfc] text-gray-800 antialiased">
+
+  <!-- Main container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-10">
+    
+    <!-- Header / Hero -->
+    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-3xl md:text-4xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
+          <span class="bg-emerald-600 w-3 h-8 rounded-full inline-block"></span> 
+          Service<span class="text-emerald-600">Connect</span>
+        </h1>
+        <p class="text-gray-500 mt-1.5 text-lg">From minor fixes to full installs — any job, any time.</p>
+      </div>
+      <!-- WhatsApp CTA (main) -->
+      <a href="https://wa.me/27689124033?text=Hello%2C%20I'm%20looking%20for%20a%20service%20not%20listed%20on%20your%20site." 
+         target="_blank" 
+         class="inline-flex items-center gap-3 bg-[#25D366] hover:bg-[#20bd5a] text-white px-5 py-3 rounded-2xl shadow-md shadow-green-200/50 transition-all font-medium text-sm md:text-base w-full md:w-auto justify-center">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 md:w-6 md:h-6">
+          <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.33 4.95L2.05 22l5.32-1.4c1.5.82 3.2 1.25 4.96 1.25 5.46 0 9.91-4.45 9.91-9.91 0-5.46-4.45-9.94-9.91-9.94zM12.05 19.5c-1.55 0-3.06-.4-4.38-1.15l-.31-.18-3.15.83.84-3.07-.2-.32a8.63 8.63 0 0 1-1.33-4.61c0-4.71 3.83-8.54 8.54-8.54 2.28 0 4.42.89 6.03 2.5a8.51 8.51 0 0 1 2.5 6.04c0 4.71-3.83 8.54-8.54 8.54z"/>
+          <path d="M17.5 14.5c-.3.8-1.5 1.4-2.4 1.5-.6.1-1.4 0-2.8-.6-2.3-1-3.8-3.3-3.9-3.5-.1-.2-.9-1.2-.9-2.4 0-1.1.6-1.7.8-1.9.2-.2.5-.3.8-.3h.6c.2 0 .4 0 .6.5.2.6.7 1.7.8 1.8.1.1.1.3 0 .5-.1.2-.2.3-.3.5-.1.2-.2.3-.1.5.2.4.9 1.5 1.9 1.9 1.3.6 1.3.4 1.5.4.2 0 .3-.1.5-.3.2-.2.8-.9 1-1.2.2-.3.4-.2.6-.1.2.1 1.3.6 1.5.7.2.1.4.2.3.4z"/>
+        </svg>
+        <span>Don't see your service?<br class="hidden sm:inline"> WhatsApp us · 068 912 4033</span>
+      </a>
+    </div>
+
+    <!-- Search bar + stats -->
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3 mb-6">
+      <div class="relative flex-grow">
+        <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search services (e.g., painting, shelf, leak)..." 
+               class="w-full pl-12 pr-4 py-3.5 bg-white border border-gray-200 rounded-2xl shadow-sm focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400 outline-none text-gray-700">
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="resultCount" class="text-sm text-gray-500 whitespace-nowrap bg-white/70 px-3 py-1.5 rounded-full">130+ services</span>
+        <button id="clearSearchBtn" class="text-sm bg-white border border-gray-200 hover:bg-gray-50 text-gray-600 px-4 py-2 rounded-xl transition shadow-sm hidden">
+          Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- Services dynamic container -->
+    <div id="categoriesContainer" class="grid grid-cols-1 lg:grid-cols-2 gap-5 transition-all">
+      <!-- Rendered by JavaScript -->
+    </div>
+
+    <!-- No results message (hidden by default) -->
+    <div id="noResultsMessage" class="hidden text-center py-16 bg-white/50 rounded-3xl border border-dashed border-gray-200 mt-6">
+      <p class="text-xl font-medium text-gray-500 mb-3">😕 No matching services</p>
+      <p class="text-gray-500 mb-5">But we can still help — just ask on WhatsApp.</p>
+      <a href="https://wa.me/27689124033?text=Hi%2C%20I'm%20looking%20for%20a%20service%20that%20wasn't%20listed%3A%20" 
+         target="_blank" 
+         class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-medium shadow">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.33 4.95L2.05 22l5.32-1.4c1.5.82 3.2 1.25 4.96 1.25 5.46 0 9.91-4.45 9.91-9.91 0-5.46-4.45-9.94-9.91-9.94zm.01 17.5c-1.55 0-3.06-.4-4.38-1.15l-.31-.18-3.15.83.84-3.07-.2-.32a8.63 8.63 0 0 1-1.33-4.61c0-4.71 3.83-8.54 8.54-8.54 2.28 0 4.42.89 6.03 2.5a8.51 8.51 0 0 1 2.5 6.04c0 4.71-3.83 8.54-8.54 8.54z"/>
+          <path d="M17.5 14.5c-.3.8-1.5 1.4-2.4 1.5-.6.1-1.4 0-2.8-.6-2.3-1-3.8-3.3-3.9-3.5-.1-.2-.9-1.2-.9-2.4 0-1.1.6-1.7.8-1.9.2-.2.5-.3.8-.3h.6c.2 0 .4 0 .6.5.2.6.7 1.7.8 1.8.1.1.1.3 0 .5-.1.2-.2.3-.3.5-.1.2-.2.3-.1.5.2.4.9 1.5 1.9 1.9 1.3.6 1.3.4 1.5.4.2 0 .3-.1.5-.3.2-.2.8-.9 1-1.2.2-.3.4-.2.6-.1.2.1 1.3.6 1.5.7.2.1.4.2.3.4z"/>
+        </svg>
+        Message 068 912 4033 on WhatsApp
+      </a>
+    </div>
+
+    <!-- Additional floating WhatsApp reminder (mobile friendly) -->
+    <div class="mt-10 text-center border-t border-gray-200/80 pt-8">
+      <p class="text-gray-500 text-sm flex items-center justify-center gap-2 flex-wrap">
+        <span>⚡ Can't find exactly what you need?</span>
+        <a href="https://wa.me/27689124033?text=Hi%2C%20I%20need%20a%20custom%20service%20quote." target="_blank" 
+           class="inline-flex items-center gap-1.5 text-emerald-700 font-medium bg-emerald-50 px-4 py-1.5 rounded-full hover:bg-emerald-100 transition">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.33 4.95L2.05 22l5.32-1.4c1.5.82 3.2 1.25 4.96 1.25 5.46 0 9.91-4.45 9.91-9.91 0-5.46-4.45-9.94-9.91-9.94zm.01 17.5c-1.55 0-3.06-.4-4.38-1.15l-.31-.18-3.15.83.84-3.07-.2-.32a8.63 8.63 0 0 1-1.33-4.61c0-4.71 3.83-8.54 8.54-8.54 2.28 0 4.42.89 6.03 2.5a8.51 8.51 0 0 1 2.5 6.04c0 4.71-3.83 8.54-8.54 8.54z"/><path d="M17.5 14.5c-.3.8-1.5 1.4-2.4 1.5-.6.1-1.4 0-2.8-.6-2.3-1-3.8-3.3-3.9-3.5-.1-.2-.9-1.2-.9-2.4 0-1.1.6-1.7.8-1.9.2-.2.5-.3.8-.3h.6c.2 0 .4 0 .6.5.2.6.7 1.7.8 1.8.1.1.1.3 0 .5-.1.2-.2.3-.3.5-.1.2-.2.3-.1.5.2.4.9 1.5 1.9 1.9 1.3.6 1.3.4 1.5.4.2 0 .3-.1.5-.3.2-.2.8-.9 1-1.2.2-.3.4-.2.6-.1.2.1 1.3.6 1.5.7.2.1.4.2.3.4z"/></svg>
+          WhatsApp 068 912 4033
+        </a>
+      </p>
+    </div>
+  </main>
+
+  <script>
+    (function(){
+      "use strict";
+
+      // ---------- DATA: Full service catalog ----------
+      const serviceCatalog = [
+        {
+          category: "General Repairs & Maintenance",
+          services: [
+            "Minor home repairs and fixes",
+            "General labor and odd jobs",
+            "Senior home safety upgrades and modifications",
+            "Weatherstripping installation/repair",
+            "Caulking and sealing (around tubs, windows, doors, etc.)",
+            "Grout repair and re-sealing",
+            "Leak detection and minor fixes",
+            "Childproofing or baby-proofing a home",
+            "Home maintenance checklists (seasonal or routine)"
+          ]
+        },
+        {
+          category: "Carpentry & Woodwork",
+          services: [
+            "Carpentry (general)",
+            "Custom shelving and storage solutions",
+            "Building or repairing cabinets",
+            "Trim, molding, and baseboard installation/repair",
+            "Deck construction, repair, or staining",
+            "Fence repair or installation (basic)",
+            "Door and window frame repair or replacement",
+            "Furniture repair or custom builds",
+            "Built-ins and interior finish work"
+          ]
+        },
+        {
+          category: "Painting & Finishing",
+          services: [
+            "Interior painting (walls, ceilings, rooms)",
+            "Exterior painting (house, trim, etc.)",
+            "Painting touch-ups and patching",
+            "Stain application (interior or exterior)",
+            "Wallpaper hanging or removal"
+          ]
+        },
+        {
+          category: "Drywall & Wall Work",
+          services: [
+            "Drywall repair, patching, and installation",
+            "Hole filling and texture matching",
+            "Wall repairs (cracks, damage)",
+            "Picture hanging, mirror hanging, and artwork installation"
+          ]
+        },
+        {
+          category: "Electrical (Minor)",
+          services: [
+            "Minor electrical repairs and installations",
+            "Light fixture replacement or installation",
+            "Ceiling fan installation and repair",
+            "Smoke detector and carbon monoxide detector installation/replacement",
+            "Outlet and switch installation or repair",
+            "Smart home device upgrades (e.g., smart lights, thermostats)",
+            "Exterior lighting installation",
+            "Basic wiring fixes (non-structural)"
+          ]
+        },
+        {
+          category: "Plumbing (Minor)",
+          services: [
+            "Minor plumbing repairs and installations",
+            "Faucet repair or replacement",
+            "Toilet repair (flushing issues, leaks, seat replacement)",
+            "Showerhead installation",
+            "Sink and drain unclogging or repair",
+            "Garbage disposal installation or repair",
+            "Caulking around plumbing fixtures"
+          ]
+        },
+        {
+          category: "Flooring & Tiling",
+          services: [
+            "Tile installation and replacement (floors, walls, backsplashes)",
+            "Floor improvements and repairs (laminate, hardwood, vinyl)",
+            "Grout cleaning and repair",
+            "Carpet repair or minor installation"
+          ]
+        },
+        {
+          category: "Doors, Windows & Fixtures",
+          services: [
+            "Door repair, installation, or adjustment (interior/exterior, closet doors)",
+            "Window repair, installation, or screen replacement",
+            "Lock installation or replacement (door locks, deadbolts)",
+            "Weatherproofing doors and windows",
+            "Blinds, curtains, and window treatments installation"
+          ]
+        },
+        {
+          category: "Installation & Assembly Services",
+          services: [
+            "Furniture assembly (flat-pack, IKEA-style, etc.)",
+            "TV wall mount installation",
+            "Appliance installation (dishwasher, washing machine, dryer, microwave, oven)",
+            "Shelving and closet organization system installation",
+            "Curtain rod, towel rack, and grab bar installation",
+            "Smart home installations (cameras, doorbells, etc.)",
+            "Air conditioner installation/removal (window units)",
+            "Garage loft storage or shelving kits"
+          ]
+        },
+        {
+          category: "Exterior & Outdoor Services",
+          services: [
+            "Tree felling and basic tree trimming/removal",
+            "Gutter cleaning, repair, or installation",
+            "Pressure washing (driveways, siding, decks)",
+            "Yard work and landscaping (mowing, edging, weeding, cleanups)",
+            "Deck and patio maintenance/repair",
+            "Siding repair (minor)",
+            "Roof inspection and minor repairs (non-structural)",
+            "Exterior drainage fixes",
+            "Fence and gate repair"
+          ]
+        },
+        {
+          category: "Kitchen & Bathroom Specific",
+          services: [
+            "Kitchen or bathroom minor remodels/upgrades",
+            "Backsplash installation",
+            "Countertop minor repairs",
+            "Vanity or cabinet adjustments",
+            "Shower/tub caulking and minor tile work"
+          ]
+        },
+        {
+          category: "Cleaning & Organization",
+          services: [
+            "Post-construction or renovation cleanup",
+            "Gutter and downspout cleaning",
+            "Window cleaning (interior/exterior)",
+            "General deep cleaning or spring cleaning",
+            "Junk removal or hauling",
+            "Garage or attic organization"
+          ]
+        },
+        {
+          category: "Other Specialized or Niche Services",
+          services: [
+            "HVAC filter replacement and basic maintenance",
+            "Appliance repair (minor, e.g., garbage disposal)",
+            "Moving help (furniture rearranging, loading/unloading)",
+            "Errands and pickup/delivery (groceries, dry cleaning, etc.)",
+            "Party setup/cleanup or guest room preparation",
+            "Electronics setup (TVs, sound systems, etc.)",
+            "Pest control basic treatments (or coordination)",
+            "Irrigation system checks (basic)",
+            "Concrete sealing or minor patching",
+            "Playground/swing set assembly"
+          ]
+        }
+      ];
+
+      // ---------- Helper: WhatsApp link for a specific service ----------
+      function getServiceWhatsAppLink(serviceName) {
+        const message = `Hi, I'm interested in: ${serviceName}`;
+        return `https://wa.me/27689124033?text=${encodeURIComponent(message)}`;
+      }
+
+      // ---------- Render categories with optional filter ----------
+      const container = document.getElementById('categoriesContainer');
+      const searchInput = document.getElementById('searchInput');
+      const clearBtn = document.getElementById('clearSearchBtn');
+      const resultCountSpan = document.getElementById('resultCount');
+      const noResultsMsg = document.getElementById('noResultsMessage');
+
+      let currentFilter = '';
+
+      function renderCatalog(filterText = '') {
+        const term = filterText.trim().toLowerCase();
+        let totalVisibleServices = 0;
+        let visibleCategoriesCount = 0;
+        let html = '';
+
+        serviceCatalog.forEach(cat => {
+          // Filter services
+          const filteredServices = term === '' 
+            ? cat.services 
+            : cat.services.filter(s => s.toLowerCase().includes(term));
+          
+          if (filteredServices.length === 0) {
+            // category will be hidden
+            html += `<div class="category-section hidden-category" data-category="${cat.category}"></div>`;
+            return;
+          }
+
+          visibleCategoriesCount++;
+          totalVisibleServices += filteredServices.length;
+
+          // Build service chips
+          let servicesHtml = '';
+          filteredServices.forEach(service => {
+            const waLink = getServiceWhatsAppLink(service);
+            servicesHtml += `
+              <div class="service-tag flex items-center justify-between bg-gray-50/80 hover:bg-white border border-gray-100 hover:border-gray-200 rounded-xl px-4 py-3 shadow-sm transition">
+                <span class="text-gray-800 text-sm md:text-base font-medium pr-2">${service}</span>
+                <a href="${waLink}" target="_blank" 
+                   class="wa-link flex items-center gap-1.5 text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-full text-xs font-medium transition border border-emerald-100"
+                   title="Request via WhatsApp">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.33 4.95L2.05 22l5.32-1.4c1.5.82 3.2 1.25 4.96 1.25 5.46 0 9.91-4.45 9.91-9.91 0-5.46-4.45-9.94-9.91-9.94z"/><path d="M17.5 14.5c-.3.8-1.5 1.4-2.4 1.5-.6.1-1.4 0-2.8-.6-2.3-1-3.8-3.3-3.9-3.5-.1-.2-.9-1.2-.9-2.4 0-1.1.6-1.7.8-1.9.2-.2.5-.3.8-.3h.6c.2 0 .4 0 .6.5.2.6.7 1.7.8 1.8.1.1.1.3 0 .5-.1.2-.2.3-.3.5-.1.2-.2.3-.1.5.2.4.9 1.5 1.9 1.9 1.3.6 1.3.4 1.5.4.2 0 .3-.1.5-.3.2-.2.8-.9 1-1.2.2-.3.4-.2.6-.1.2.1 1.3.6 1.5.7.2.1.4.2.3.4z"/></svg>
+                  <span class="hidden xs:inline">Request</span>
+                </a>
+              </div>
+            `;
+          });
+
+          html += `
+            <div class="category-section category-card p-5 md:p-6" data-category="${cat.category}">
+              <div class="flex items-center gap-2 mb-4">
+                <h2 class="text-xl md:text-2xl font-semibold text-gray-800">${cat.category}</h2>
+                <span class="bg-gray-200/80 text-gray-600 text-xs px-2.5 py-1 rounded-full">${filteredServices.length}</span>
+              </div>
+              <div class="grid grid-cols-1 gap-3">
+                ${servicesHtml}
+              </div>
+            </div>
+          `;
+        });
+
+        container.innerHTML = html;
+
+        // Update result count & no-results message
+        if (totalVisibleServices === 0) {
+          resultCountSpan.textContent = `0 services · try another search`;
+          noResultsMsg.classList.remove('hidden');
+        } else {
+          resultCountSpan.textContent = `${totalVisibleServices} service${totalVisibleServices !== 1 ? 's' : ''} found`;
+          noResultsMsg.classList.add('hidden');
+        }
+
+        // Show/hide clear button
+        if (term !== '') {
+          clearBtn.classList.remove('hidden');
+        } else {
+          clearBtn.classList.add('hidden');
+        }
+
+        // If no categories visible at all (edge case)
+        if (visibleCategoriesCount === 0 && term !== '') {
+          // already showing noResultsMsg
+        }
+      }
+
+      // Initial render
+      renderCatalog('');
+
+      // ---------- Event listeners ----------
+      searchInput.addEventListener('input', (e) => {
+        const val = e.target.value;
+        currentFilter = val;
+        renderCatalog(val);
+      });
+
+      clearBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        currentFilter = '';
+        renderCatalog('');
+        searchInput.focus();
+      });
+
+      // Update total services count on load (initial count)
+      const totalServices = serviceCatalog.reduce((acc, cat) => acc + cat.services.length, 0);
+      resultCountSpan.textContent = `${totalServices}+ services`;
+
+      // Minor: if search clear with empty string, make sure count resets
+      // Already handled.
+
+    })();
+  </script>
+
+  <!-- tiny responsive helper (xs breakpoint not in tailwind default, so we add a style) -->
+  <style>
+    @media (min-width: 480px) {
+      .xs\:inline { display: inline; }
+    }
+    .hidden-category { display: none !important; }
+  </style>
+</body>
+</html>
