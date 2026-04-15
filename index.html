@@ -1,0 +1,1051 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ServiceConnect — Any service, one message away</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1a8a5a;
+    --green-light: #e8f7ef;
+    --green-mid: #2db376;
+    --green-dark: #12603e;
+    --green-accent: #00d97e;
+    --ink: #0f1a14;
+    --ink-2: #2d3d35;
+    --ink-3: #556b60;
+    --ink-4: #8fa899;
+    --surface: #f5faf7;
+    --surface-2: #edf5f0;
+    --surface-3: #daeee4;
+    --white: #ffffff;
+    --border: rgba(26,138,90,0.14);
+    --border-strong: rgba(26,138,90,0.28);
+    --radius: 14px;
+    --radius-lg: 20px;
+    --radius-xl: 28px;
+    --wa-green: #25D366;
+    --wa-dark: #128C7E;
+    --shadow-sm: 0 1px 3px rgba(15,26,20,0.08), 0 1px 2px rgba(15,26,20,0.06);
+    --shadow: 0 4px 12px rgba(15,26,20,0.1), 0 2px 4px rgba(15,26,20,0.07);
+    --shadow-md: 0 8px 24px rgba(15,26,20,0.12), 0 4px 8px rgba(15,26,20,0.07);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: var(--surface);
+    color: var(--ink);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── APP SHELL ── */
+  .app-shell {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    grid-template-rows: 64px 1fr;
+    min-height: 100vh;
+  }
+
+  /* ── TOP BAR ── */
+  .topbar {
+    grid-column: 1 / -1;
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    text-decoration: none;
+  }
+
+  .logo-mark {
+    width: 36px;
+    height: 36px;
+    background: var(--green);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 18px;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+  }
+
+  .logo-text span { color: var(--green); }
+
+  .topbar-divider {
+    width: 1px;
+    height: 28px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+
+  .search-wrap {
+    flex: 1;
+    position: relative;
+    max-width: 480px;
+  }
+
+  .search-wrap svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--ink-4);
+    pointer-events: none;
+  }
+
+  #searchInput {
+    width: 100%;
+    padding: 10px 16px 10px 42px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  #searchInput:focus {
+    border-color: var(--green-mid);
+    background: var(--white);
+    box-shadow: 0 0 0 3px rgba(45,179,118,0.15);
+  }
+
+  #searchInput::placeholder { color: var(--ink-4); }
+
+  #clearBtn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--surface-3);
+    border: none;
+    border-radius: 6px;
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    color: var(--ink-3);
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  #clearBtn.visible { display: flex; }
+
+  .topbar-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  .stat-pill {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-3);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 5px 12px;
+    border-radius: 20px;
+  }
+
+  .btn-wa-top {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--wa-green);
+    color: #fff;
+    text-decoration: none;
+    padding: 9px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    transition: background 0.15s, transform 0.1s;
+    white-space: nowrap;
+  }
+
+  .btn-wa-top:hover { background: var(--wa-dark); }
+  .btn-wa-top:active { transform: scale(0.97); }
+
+  /* ── SIDEBAR ── */
+  .sidebar {
+    background: var(--white);
+    border-right: 1px solid var(--border);
+    padding: 20px 16px;
+    overflow-y: auto;
+    height: calc(100vh - 64px);
+    position: sticky;
+    top: 64px;
+  }
+
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-4);
+    padding: 0 8px;
+    margin-bottom: 8px;
+  }
+
+  .sidebar-nav {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .sidebar-nav li a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-2);
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+    cursor: pointer;
+  }
+
+  .sidebar-nav li a:hover {
+    background: var(--surface);
+    color: var(--green);
+  }
+
+  .sidebar-nav li a.active {
+    background: var(--green-light);
+    color: var(--green-dark);
+  }
+
+  .sidebar-nav li a .icon-wrap {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    background: var(--surface-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+
+  .sidebar-nav li a:hover .icon-wrap { background: var(--green-light); }
+  .sidebar-nav li a.active .icon-wrap { background: var(--green-mid); }
+  .sidebar-nav li a.active .icon-wrap svg { color: #fff; }
+
+  .sidebar-nav li a .count {
+    margin-left: auto;
+    font-size: 11px;
+    background: var(--surface-2);
+    color: var(--ink-4);
+    padding: 2px 7px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+
+  .sidebar-nav li a.active .count {
+    background: rgba(26,138,90,0.15);
+    color: var(--green-dark);
+  }
+
+  .sidebar-footer {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .btn-wa-sidebar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--green-light);
+    border: 1.5px solid var(--border-strong);
+    border-radius: 12px;
+    padding: 12px 14px;
+    text-decoration: none;
+    transition: background 0.15s;
+  }
+
+  .btn-wa-sidebar:hover { background: var(--surface-3); }
+
+  .wa-icon-circle {
+    width: 36px;
+    height: 36px;
+    background: var(--wa-green);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .btn-wa-sidebar-text strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+
+  .btn-wa-sidebar-text span {
+    font-size: 11px;
+    color: var(--ink-3);
+  }
+
+  /* ── MAIN CONTENT ── */
+  .main-content {
+    overflow-y: auto;
+    padding: 28px 32px;
+    height: calc(100vh - 64px);
+    overflow-x: hidden;
+  }
+
+  /* ── HERO BANNER ── */
+  .hero-banner {
+    background: linear-gradient(135deg, var(--green) 0%, var(--green-dark) 100%);
+    border-radius: var(--radius-xl);
+    padding: 32px 36px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-banner::before {
+    content: '';
+    position: absolute;
+    right: -40px;
+    top: -40px;
+    width: 200px;
+    height: 200px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 50%;
+  }
+
+  .hero-banner::after {
+    content: '';
+    position: absolute;
+    right: 60px;
+    bottom: -60px;
+    width: 150px;
+    height: 150px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 50%;
+  }
+
+  .hero-text h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .hero-text p {
+    font-size: 15px;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.5;
+    max-width: 360px;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 16px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-stat {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 14px;
+    padding: 14px 20px;
+    text-align: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .hero-stat strong {
+    display: block;
+    font-family: 'Syne', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .hero-stat span {
+    font-size: 11px;
+    color: rgba(255,255,255,0.65);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 500;
+  }
+
+  /* ── CATEGORY FILTER CHIPS ── */
+  .filter-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  .filter-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .filter-chip:hover { border-color: var(--green-mid); color: var(--green); background: var(--green-light); }
+
+  .filter-chip.active {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+  }
+
+  .filter-chip.active svg { color: #fff; }
+
+  /* ── SERVICES GRID ── */
+  #mainGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 20px;
+  }
+
+  /* ── CATEGORY CARD ── */
+  .cat-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: box-shadow 0.2s, border-color 0.2s;
+    animation: fadeUp 0.3s ease both;
+  }
+
+  .cat-card:hover {
+    box-shadow: var(--shadow);
+    border-color: var(--border-strong);
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .cat-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .cat-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+    background: var(--green);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .cat-icon svg { color: #fff; }
+
+  .cat-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    letter-spacing: -0.01em;
+    flex: 1;
+  }
+
+  .cat-count {
+    font-size: 11px;
+    font-weight: 600;
+    background: var(--green-light);
+    color: var(--green-dark);
+    padding: 3px 9px;
+    border-radius: 20px;
+    border: 1px solid var(--border-strong);
+  }
+
+  .cat-body {
+    padding: 10px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .svc-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 9px 10px;
+    border-radius: 10px;
+    transition: background 0.12s;
+  }
+
+  .svc-row:hover { background: var(--surface); }
+
+  .svc-name {
+    font-size: 13.5px;
+    color: var(--ink-2);
+    font-weight: 400;
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  .svc-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--wa-green);
+    color: #fff;
+    text-decoration: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: background 0.15s, transform 0.1s;
+    white-space: nowrap;
+  }
+
+  .svc-btn:hover { background: var(--wa-dark); }
+  .svc-btn:active { transform: scale(0.96); }
+
+  /* ── NO RESULTS ── */
+  #noResults {
+    display: none;
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .no-results-icon {
+    width: 64px;
+    height: 64px;
+    background: var(--surface-2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+  }
+
+  #noResults h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+
+  #noResults p {
+    font-size: 14px;
+    color: var(--ink-3);
+    margin-bottom: 20px;
+  }
+
+  .btn-wa-nr {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--wa-green);
+    color: #fff;
+    text-decoration: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.15s;
+  }
+
+  .btn-wa-nr:hover { background: var(--wa-dark); }
+
+  /* ── MOBILE TOGGLE ── */
+  .mobile-menu-btn {
+    display: none;
+    background: none;
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 7px;
+    cursor: pointer;
+    color: var(--ink-2);
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── FLOATING WA ── */
+  .wa-float {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    background: var(--wa-green);
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-md);
+    text-decoration: none;
+    z-index: 200;
+    transition: transform 0.2s, background 0.15s;
+  }
+
+  .wa-float:hover { background: var(--wa-dark); transform: scale(1.08); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .app-shell { grid-template-columns: 1fr; }
+
+    .sidebar {
+      display: none;
+      position: fixed;
+      top: 64px;
+      left: 0;
+      width: 280px;
+      height: calc(100vh - 64px);
+      z-index: 99;
+      box-shadow: var(--shadow-md);
+    }
+
+    .sidebar.open { display: block; }
+
+    .mobile-menu-btn { display: flex; }
+
+    .topbar-divider, .stat-pill { display: none; }
+
+    .main-content { padding: 20px 16px; }
+
+    .hero-stats { display: none; }
+
+    .hero-banner { padding: 24px 22px; }
+
+    .hero-text h1 { font-size: 22px; }
+
+    #mainGrid { grid-template-columns: 1fr; }
+
+    .wa-float { display: flex; }
+
+    .btn-wa-top span { display: none; }
+  }
+
+  @media (max-width: 600px) {
+    .search-wrap { max-width: none; flex: 1; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+
+    <a href="#" class="logo">
+      <div class="logo-mark">
+        <!-- Tool/wrench icon -->
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#fff" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+        </svg>
+      </div>
+      <span class="logo-text">Service<span>Connect</span></span>
+    </a>
+
+    <div class="topbar-divider"></div>
+
+    <div class="search-wrap">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Search for a service…" autocomplete="off" spellcheck="false">
+      <button id="clearBtn" aria-label="Clear">✕</button>
+    </div>
+
+    <div class="topbar-actions">
+      <span class="stat-pill" id="statPill">130+ services</span>
+      <a href="https://wa.me/27689124033?text=Hello%2C%20I'm%20looking%20for%20a%20service." target="_blank" class="btn-wa-top">
+        <!-- WhatsApp icon -->
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.33 4.95L2.05 22l5.32-1.4c1.5.82 3.2 1.25 4.96 1.25 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm.01 17.5c-1.55 0-3.06-.4-4.38-1.15l-.31-.18-3.15.83.84-3.07-.2-.32A8.63 8.63 0 0 1 3.52 11.9c0-4.71 3.83-8.54 8.54-8.54 2.28 0 4.42.89 6.03 2.5a8.51 8.51 0 0 1 2.5 6.04c0 4.71-3.83 8.54-8.54 8.54z"/>
+          <path d="M17.5 14.5c-.3.8-1.5 1.4-2.4 1.5-.6.1-1.4 0-2.8-.6-2.3-1-3.8-3.3-3.9-3.5-.1-.2-.9-1.2-.9-2.4 0-1.1.6-1.7.8-1.9.2-.2.5-.3.8-.3h.6c.2 0 .4 0 .6.5.2.6.7 1.7.8 1.8.1.1.1.3 0 .5-.1.2-.2.3-.3.5-.1.2-.2.3-.1.5.2.4.9 1.5 1.9 1.9 1.3.6 1.3.4 1.5.4.2 0 .3-.1.5-.3.2-.2.8-.9 1-1.2.2-.3.4-.2.6-.1.2.1 1.3.6 1.5.7.2.1.4.2.3.4z"/>
+        </svg>
+        <span>068 912 4033</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <p class="sidebar-label">Categories</p>
+    <ul class="sidebar-nav" id="sidebarNav">
+      <!-- rendered by JS -->
+    </ul>
+    <div class="sidebar-footer">
+      <a href="https://wa.me/27689124033?text=Hi%2C%20I%20need%20a%20custom%20service%20quote." target="_blank" class="btn-wa-sidebar">
+        <div class="wa-icon-circle">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff">
+            <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.33 4.95L2.05 22l5.32-1.4c1.5.82 3.2 1.25 4.96 1.25 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm.01 17.5c-1.55 0-3.06-.4-4.38-1.15l-.31-.18-3.15.83.84-3.07-.2-.32A8.63 8.63 0 0 1 3.52 11.9c0-4.71 3.83-8.54 8.54-8.54 2.28 0 4.42.89 6.03 2.5a8.51 8.51 0 0 1 2.5 6.04c0 4.71-3.83 8.54-8.54 8.54z"/>
+            <path d="M17.5 14.5c-.3.8-1.5 1.4-2.4 1.5-.6.1-1.4 0-2.8-.6-2.3-1-3.8-3.3-3.9-3.5-.1-.2-.9-1.2-.9-2.4 0-1.1.6-1.7.8-1.9.2-.2.5-.3.8-.3h.6c.2 0 .4 0 .6.5.2.6.7 1.7.8 1.8.1.1.1.3 0 .5-.1.2-.2.3-.3.5-.1.2-.2.3-.1.5.2.4.9 1.5 1.9 1.9 1.3.6 1.3.4 1.5.4.2 0 .3-.1.5-.3.2-.2.8-.9 1-1.2.2-.3.4-.2.6-.1.2.1 1.3.6 1.5.7.2.1.4.2.3.4z"/>
+          </svg>
+        </div>
+        <div class="btn-wa-sidebar-text">
+          <strong>Can't find it?</strong>
+          <span>Chat with us directly</span>
+        </div>
+      </a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content" id="mainContent">
+
+    <!-- HERO -->
+    <div class="hero-banner">
+      <div class="hero-text">
+        <h1>Any job, any time.<br>We've got it covered.</h1>
+        <p>From minor fixes to full installs — browse 130+ services and request any of them in one tap via WhatsApp.</p>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat">
+          <strong id="heroTotal">130+</strong>
+          <span>Services</span>
+        </div>
+        <div class="hero-stat">
+          <strong>13</strong>
+          <span>Categories</span>
+        </div>
+        <div class="hero-stat">
+          <strong>1</strong>
+          <span>Tap to book</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILTER CHIPS -->
+    <div class="filter-row" id="filterRow">
+      <!-- rendered by JS -->
+    </div>
+
+    <!-- GRID -->
+    <div id="mainGrid">
+      <div id="noResults">
+        <div class="no-results-icon">
+          <svg width="28" height="28" fill="none" stroke="var(--ink-4)" stroke-width="1.8" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/><line x1="8" y1="11" x2="14" y2="11"/>
+          </svg>
+        </div>
+        <h3>No matching services</h3>
+        <p>But we can still help — just message us on WhatsApp.</p>
+        <a href="https://wa.me/27689124033?text=Hi%2C%20I'm%20looking%20for%20a%20service%20not%20listed." target="_blank" class="btn-wa-nr">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.33 4.95L2.05 22l5.32-1.4c1.5.82 3.2 1.25 4.96 1.25 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm.01 17.5c-1.55 0-3.06-.4-4.38-1.15l-.31-.18-3.15.83.84-3.07-.2-.32A8.63 8.63 0 0 1 3.52 11.9c0-4.71 3.83-8.54 8.54-8.54 2.28 0 4.42.89 6.03 2.5a8.51 8.51 0 0 1 2.5 6.04c0 4.71-3.83 8.54-8.54 8.54z"/></svg>
+          Message 068 912 4033
+        </a>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- Floating WhatsApp (mobile) -->
+<a href="https://wa.me/27689124033?text=Hello!" target="_blank" class="wa-float" aria-label="WhatsApp">
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff">
+    <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.33 4.95L2.05 22l5.32-1.4c1.5.82 3.2 1.25 4.96 1.25 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm.01 17.5c-1.55 0-3.06-.4-4.38-1.15l-.31-.18-3.15.83.84-3.07-.2-.32A8.63 8.63 0 0 1 3.52 11.9c0-4.71 3.83-8.54 8.54-8.54 2.28 0 4.42.89 6.03 2.5a8.51 8.51 0 0 1 2.5 6.04c0 4.71-3.83 8.54-8.54 8.54z"/>
+    <path d="M17.5 14.5c-.3.8-1.5 1.4-2.4 1.5-.6.1-1.4 0-2.8-.6-2.3-1-3.8-3.3-3.9-3.5-.1-.2-.9-1.2-.9-2.4 0-1.1.6-1.7.8-1.9.2-.2.5-.3.8-.3h.6c.2 0 .4 0 .6.5.2.6.7 1.7.8 1.8.1.1.1.3 0 .5-.1.2-.2.3-.3.5-.1.2-.2.3-.1.5.2.4.9 1.5 1.9 1.9 1.3.6 1.3.4 1.5.4.2 0 .3-.1.5-.3.2-.2.8-.9 1-1.2.2-.3.4-.2.6-.1.2.1 1.3.6 1.5.7.2.1.4.2.3.4z"/>
+  </svg>
+</a>
+
+<script>
+(function(){
+  "use strict";
+
+  // ── INLINE SVG ICONS PER CATEGORY ──
+  const catIcons = {
+    "General Repairs & Maintenance": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>`,
+    "Carpentry & Woodwork": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><path stroke-linecap="round" d="M3 17.5h7m-3.5-3.5v7"/></svg>`,
+    "Painting & Finishing": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2 13.5A6.5 6.5 0 0 1 8.5 7h7A6.5 6.5 0 0 1 22 13.5v0a.5.5 0 0 1-.5.5H2.5a.5.5 0 0 1-.5-.5v0z"/><path stroke-linecap="round" d="M12 7V4m0 0H9m3 0h3"/></svg>`,
+    "Drywall & Wall Work": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>`,
+    "Electrical (Minor)": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>`,
+    "Plumbing (Minor)": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2v6M8 8a4 4 0 0 0 8 0M6 12H4a2 2 0 0 0-2 2v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a2 2 0 0 0-2-2h-2"/><line x1="12" y1="16" x2="12" y2="18"/></svg>`,
+    "Flooring & Tiling": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 12 L12 4 L20 12 L12 20 Z"/><path stroke-linecap="round" d="M4 12 L12 20 M20 12 L12 4"/></svg>`,
+    "Doors, Windows & Fixtures": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path stroke-linecap="round" d="M15 12h.01"/></svg>`,
+    "Installation & Assembly Services": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path stroke-linecap="round" d="M12 2v3m0 14v3M4.22 4.22l2.12 2.12m11.32 11.32 2.12 2.12M2 12h3m14 0h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>`,
+    "Exterior & Outdoor Services": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline stroke-linecap="round" points="9 22 9 12 15 12 15 22"/></svg>`,
+    "Kitchen & Bathroom Specific": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>`,
+    "Cleaning & Organization": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 6l3 13h12l3-13H3z"/><path stroke-linecap="round" d="M3 6h18M10 6V4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2"/></svg>`,
+    "Other Specialized or Niche Services": `<svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 8v4l3 3"/></svg>`
+  };
+
+  // Sidebar short names
+  const catShort = {
+    "General Repairs & Maintenance": "General Repairs",
+    "Carpentry & Woodwork": "Carpentry",
+    "Painting & Finishing": "Painting",
+    "Drywall & Wall Work": "Drywall & Walls",
+    "Electrical (Minor)": "Electrical",
+    "Plumbing (Minor)": "Plumbing",
+    "Flooring & Tiling": "Flooring",
+    "Doors, Windows & Fixtures": "Doors & Windows",
+    "Installation & Assembly Services": "Installation",
+    "Exterior & Outdoor Services": "Outdoor",
+    "Kitchen & Bathroom Specific": "Kitchen & Bath",
+    "Cleaning & Organization": "Cleaning",
+    "Other Specialized or Niche Services": "Specialized"
+  };
+
+  const WA = "27689124033";
+
+  const catalog = [
+    { category: "General Repairs & Maintenance", services: ["Minor home repairs and fixes","General labor and odd jobs","Senior home safety upgrades and modifications","Weatherstripping installation/repair","Caulking and sealing (around tubs, windows, doors, etc.)","Grout repair and re-sealing","Leak detection and minor fixes","Childproofing or baby-proofing a home","Home maintenance checklists (seasonal or routine)"] },
+    { category: "Carpentry & Woodwork", services: ["Carpentry (general)","Custom shelving and storage solutions","Building or repairing cabinets","Trim, molding, and baseboard installation/repair","Deck construction, repair, or staining","Fence repair or installation (basic)","Door and window frame repair or replacement","Furniture repair or custom builds","Built-ins and interior finish work"] },
+    { category: "Painting & Finishing", services: ["Interior painting (walls, ceilings, rooms)","Exterior painting (house, trim, etc.)","Painting touch-ups and patching","Stain application (interior or exterior)","Wallpaper hanging or removal"] },
+    { category: "Drywall & Wall Work", services: ["Drywall repair, patching, and installation","Hole filling and texture matching","Wall repairs (cracks, damage)","Picture hanging, mirror hanging, and artwork installation"] },
+    { category: "Electrical (Minor)", services: ["Minor electrical repairs and installations","Light fixture replacement or installation","Ceiling fan installation and repair","Smoke detector and carbon monoxide detector installation/replacement","Outlet and switch installation or repair","Smart home device upgrades (e.g., smart lights, thermostats)","Exterior lighting installation","Basic wiring fixes (non-structural)"] },
+    { category: "Plumbing (Minor)", services: ["Minor plumbing repairs and installations","Faucet repair or replacement","Toilet repair (flushing issues, leaks, seat replacement)","Showerhead installation","Sink and drain unclogging or repair","Garbage disposal installation or repair","Caulking around plumbing fixtures"] },
+    { category: "Flooring & Tiling", services: ["Tile installation and replacement (floors, walls, backsplashes)","Floor improvements and repairs (laminate, hardwood, vinyl)","Grout cleaning and repair","Carpet repair or minor installation"] },
+    { category: "Doors, Windows & Fixtures", services: ["Door repair, installation, or adjustment (interior/exterior, closet doors)","Window repair, installation, or screen replacement","Lock installation or replacement (door locks, deadbolts)","Weatherproofing doors and windows","Blinds, curtains, and window treatments installation"] },
+    { category: "Installation & Assembly Services", services: ["Furniture assembly (flat-pack, IKEA-style, etc.)","TV wall mount installation","Appliance installation (dishwasher, washing machine, dryer, microwave, oven)","Shelving and closet organization system installation","Curtain rod, towel rack, and grab bar installation","Smart home installations (cameras, doorbells, etc.)","Air conditioner installation/removal (window units)","Garage loft storage or shelving kits"] },
+    { category: "Exterior & Outdoor Services", services: ["Tree felling and basic tree trimming/removal","Gutter cleaning, repair, or installation","Pressure washing (driveways, siding, decks)","Yard work and landscaping (mowing, edging, weeding, cleanups)","Deck and patio maintenance/repair","Siding repair (minor)","Roof inspection and minor repairs (non-structural)","Exterior drainage fixes","Fence and gate repair"] },
+    { category: "Kitchen & Bathroom Specific", services: ["Kitchen or bathroom minor remodels/upgrades","Backsplash installation","Countertop minor repairs","Vanity or cabinet adjustments","Shower/tub caulking and minor tile work"] },
+    { category: "Cleaning & Organization", services: ["Post-construction or renovation cleanup","Gutter and downspout cleaning","Window cleaning (interior/exterior)","General deep cleaning or spring cleaning","Junk removal or hauling","Garage or attic organization"] },
+    { category: "Other Specialized or Niche Services", services: ["HVAC filter replacement and basic maintenance","Appliance repair (minor, e.g., garbage disposal)","Moving help (furniture rearranging, loading/unloading)","Errands and pickup/delivery (groceries, dry cleaning, etc.)","Party setup/cleanup or guest room preparation","Electronics setup (TVs, sound systems, etc.)","Pest control basic treatments (or coordination)","Irrigation system checks (basic)","Concrete sealing or minor patching","Playground/swing set assembly"] }
+  ];
+
+  const grid = document.getElementById('mainGrid');
+  const noResults = document.getElementById('noResults');
+  const sidebarNav = document.getElementById('sidebarNav');
+  const filterRow = document.getElementById('filterRow');
+  const statPill = document.getElementById('statPill');
+  const heroTotal = document.getElementById('heroTotal');
+  const searchInput = document.getElementById('searchInput');
+  const clearBtn = document.getElementById('clearBtn');
+
+  const total = catalog.reduce((a, c) => a + c.services.length, 0);
+  heroTotal.textContent = total + '+';
+  statPill.textContent = total + '+ services';
+
+  let activeCategory = 'all';
+  let searchTerm = '';
+
+  // WA icon inline SVG
+  const waIcon = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.33 4.95L2.05 22l5.32-1.4c1.5.82 3.2 1.25 4.96 1.25 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm.01 17.5c-1.55 0-3.06-.4-4.38-1.15l-.31-.18-3.15.83.84-3.07-.2-.32a8.63 8.63 0 0 1-1.33-4.61c0-4.71 3.83-8.54 8.54-8.54 2.28 0 4.42.89 6.03 2.5a8.51 8.51 0 0 1 2.5 6.04c0 4.71-3.83 8.54-8.54 8.54z"/><path d="M17.5 14.5c-.3.8-1.5 1.4-2.4 1.5-.6.1-1.4 0-2.8-.6-2.3-1-3.8-3.3-3.9-3.5-.1-.2-.9-1.2-.9-2.4 0-1.1.6-1.7.8-1.9.2-.2.5-.3.8-.3h.6c.2 0 .4 0 .6.5.2.6.7 1.7.8 1.8.1.1.1.3 0 .5-.1.2-.2.3-.3.5-.1.2-.2.3-.1.5.2.4.9 1.5 1.9 1.9 1.3.6 1.3.4 1.5.4.2 0 .3-.1.5-.3.2-.2.8-.9 1-1.2.2-.3.4-.2.6-.1.2.1 1.3.6 1.5.7.2.1.4.2.3.4z"/></svg>`;
+
+  function waLink(name) {
+    return `https://wa.me/${WA}?text=${encodeURIComponent('Hi, I\'m interested in: ' + name)}`;
+  }
+
+  function render() {
+    const term = searchTerm.toLowerCase().trim();
+    let html = '';
+    let total = 0;
+    let delay = 0;
+
+    catalog.forEach(cat => {
+      if (activeCategory !== 'all' && cat.category !== activeCategory) return;
+
+      const services = term
+        ? cat.services.filter(s => s.toLowerCase().includes(term))
+        : cat.services;
+
+      if (!services.length) return;
+      total += services.length;
+
+      const icon = catIcons[cat.category] || catIcons["Other Specialized or Niche Services"];
+
+      const rows = services.map(s => `
+        <div class="svc-row">
+          <span class="svc-name">${s}</span>
+          <a href="${waLink(s)}" target="_blank" class="svc-btn" title="Request via WhatsApp">
+            ${waIcon} Book
+          </a>
+        </div>
+      `).join('');
+
+      html += `
+        <div class="cat-card" style="animation-delay:${delay * 40}ms">
+          <div class="cat-header">
+            <div class="cat-icon">${icon}</div>
+            <h2 class="cat-title">${cat.category}</h2>
+            <span class="cat-count">${services.length}</span>
+          </div>
+          <div class="cat-body">${rows}</div>
+        </div>
+      `;
+      delay++;
+    });
+
+    // Remove old cards
+    const existing = grid.querySelectorAll('.cat-card');
+    existing.forEach(el => el.remove());
+
+    if (!html) {
+      noResults.style.display = 'block';
+      grid.style.display = 'block';
+    } else {
+      noResults.style.display = 'none';
+      grid.insertAdjacentHTML('beforeend', html);
+    }
+
+    statPill.textContent = total + ' service' + (total !== 1 ? 's' : '');
+
+    // Update sidebar active state
+    sidebarNav.querySelectorAll('a').forEach(a => {
+      a.classList.toggle('active', a.dataset.cat === activeCategory);
+    });
+
+    // Update filter chips
+    filterRow.querySelectorAll('.filter-chip').forEach(c => {
+      c.classList.toggle('active', c.dataset.cat === activeCategory);
+    });
+  }
+
+  // ── BUILD SIDEBAR ──
+  function buildSidebar() {
+    let html = `<li><a href="#" data-cat="all" class="active">
+      <div class="icon-wrap">
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      </div>
+      All Services
+      <span class="count">${total}</span>
+    </a></li>`;
+
+    catalog.forEach(cat => {
+      const icon = catIcons[cat.category] || '';
+      const short = catShort[cat.category] || cat.category;
+      html += `<li><a href="#" data-cat="${cat.category}">
+        <div class="icon-wrap">${icon}</div>
+        ${short}
+        <span class="count">${cat.services.length}</span>
+      </a></li>`;
+    });
+
+    sidebarNav.innerHTML = html;
+
+    sidebarNav.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        activeCategory = a.dataset.cat;
+        render();
+        // close mobile sidebar
+        document.getElementById('sidebar').classList.remove('open');
+      });
+    });
+  }
+
+  // ── BUILD FILTER CHIPS ──
+  function buildChips() {
+    let html = `<div class="filter-chip active" data-cat="all">
+      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      All
+    </div>`;
+
+    catalog.forEach(cat => {
+      const icon = catIcons[cat.category] || '';
+      const short = catShort[cat.category] || cat.category;
+      html += `<div class="filter-chip" data-cat="${cat.category}">
+        ${icon.replace('width="17" height="17"', 'width="12" height="12"')}
+        ${short}
+      </div>`;
+    });
+
+    filterRow.innerHTML = html;
+
+    filterRow.querySelectorAll('.filter-chip').forEach(c => {
+      c.addEventListener('click', () => {
+        activeCategory = c.dataset.cat;
+        render();
+        // scroll to grid
+        grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  }
+
+  // ── SEARCH ──
+  searchInput.addEventListener('input', e => {
+    searchTerm = e.target.value;
+    clearBtn.classList.toggle('visible', searchTerm.length > 0);
+    render();
+  });
+
+  clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    searchTerm = '';
+    clearBtn.classList.remove('visible');
+    searchInput.focus();
+    render();
+  });
+
+  // ── MOBILE MENU ──
+  document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+  });
+
+  // ── INIT ──
+  buildSidebar();
+  buildChips();
+  render();
+
+})();
+</script>
+
+</body>
+</html>
