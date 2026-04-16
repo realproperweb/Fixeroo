@@ -854,7 +854,7 @@
       if(!services.length) return;
       visibleCount += services.length;
       const icon = catIcons[cat.category] || catIcons["Other Specialized or Niche Services"];
-      const rows = services.map(s => `<div class="svc-row"><span class="svc-name">${escapeHtml(s)}</span><a href="${waLink(s)}" target="_blank" class="svc-btn">${waIcon} Book</a></div>`).join('');
+      const rows = services.map(s => `<div class="svc-row"><span class="svc-name">${escapeHtml(s)}</span><a href="${waLink(s)}" target="_blank" class="svc-btn">${waIcon} Book | More info</a></div>`).join('');
       html += `<div class="cat-card"><div class="cat-header"><div class="cat-icon">${icon}</div><h2 class="cat-title">${cat.category}</h2><span class="cat-count">${services.length}</span></div><div class="cat-body">${rows}</div></div>`;
     });
     const gridContainer = document.getElementById('mainGrid');
